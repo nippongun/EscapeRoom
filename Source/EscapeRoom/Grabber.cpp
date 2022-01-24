@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "Grabber.h"
 #include "DrawDebugHelpers.h"
 #include "GameFramework/PlayerController.h"
 #include "Components/InputComponent.h"
 #include "Engine/World.h"
-#include "Grabber.h"
 
 #define OUT
 // Sets default values for this component's properties
@@ -33,6 +33,23 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	FVector PlayerViewPointLocation;
+	FRotator PlayerViewPointRotation;
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
+		OUT PlayerViewPointLocation,
+		OUT PlayerViewPointRotation);
+
+	// UE_LOG(LogTemp, Warning, TEXT("Location:%s, Rotation:%s"), *PlayerViewPointLocation.ToString(), *PlayerViewPointRotation.ToString());
+	// ray-cast out to a certain distance
+
+	// Draw a line from player showung the reach.
+
+	FVector LineTraceEnd = PlayerViewPointLocation + (PlayerViewPointRotation.Vector() * reach);
+
+	if (PhysiscsHandle->GrabbedComponent)
+	{
+		PhysiscsHandle->SetTargetLocation(LineTraceEnd);
+	}
 	// If the physics handle is attached
 	// Move the object we are handling
 }
@@ -40,14 +57,34 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 void UGrabber::Grab()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Grabber pressed"));
-	GetFirstPhysicsBodyInReach();
+
+	auto HitResult = GetFirstPhysicsBodyInReach();
+
+	FVector PlayerViewPointLocation;
+	FRotator PlayerViewPointRotation;
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
+		OUT PlayerViewPointLocation,
+		OUT PlayerViewPointRotation);
+
+	// UE_LOG(LogTemp, Warning, TEXT("Location:%s, Rotation:%s"), *PlayerViewPointLocation.ToString(), *PlayerViewPointRotation.ToString());
+	// ray-cast out to a certain distance
+
+	// Draw a line from player showung the reach.
+
+	FVector LineTraceEnd = PlayerViewPointLocation + (PlayerViewPointRotation.Vector() * reach);
+	UPrimitiveComponent *ComponentToGrab = HitResult.GetComponent();
 	// TODO: Try and reach any actors with physiscs body collision channel set.
 	// if we hit something then attach the physics handle
+	if (HitResult.GetActor())
+	{
+		PhysiscsHandle->GrabComponentAtLocation(ComponentToGrab, NAME_None, LineTraceEnd);
+	}
 }
 
 void UGrabber::Release()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Grabber released"));
+	PhysiscsHandle->ReleaseComponent();
 }
 
 void UGrabber::FindPhysicsHandle()
