@@ -37,4 +37,6 @@ private:
 	void FindInputComponent();
 
 	FHitResult GetFirstPhysicsBodyInReach() const;
+	FVector GetLineTraceEnd() const;
+	FVector GetPlayerPositionInWorld() const;
 };
