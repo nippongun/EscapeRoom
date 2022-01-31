@@ -28,7 +28,7 @@ public:
 private:
 	void OpenDoor(float DeltaTime);
 	void CloseDoor(float DeltaTime);
-
+	float TotalMassOfActors() const;
 	UPROPERTY(EditAnywhere)
 	float TargetYaw = 90.f;
 	float CurrentYaw;
@@ -38,7 +38,9 @@ private:
 	float DoorLastOpened = 0.f;
 	UPROPERTY(EditAnywhere)
 	float DoorCloseDelay = 2.f;
-
+	UPROPERTY(EditAnywhere)
+	float RequiredTotalMass = 1.f;
+	
 	UPROPERTY(EditAnywhere)
 	ATriggerVolume *PressurePlate;
 
