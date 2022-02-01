@@ -2,6 +2,7 @@
 
 #include "OpenDoor.h"
 #include "Components/PrimitiveComponent.h"
+#include "Components/AudioComponent.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/PlayerController.h"
 
@@ -24,7 +25,7 @@ void UOpenDoor::BeginPlay()
 	CurrentYaw = InitialYaw;
 	TargetYaw += InitialYaw;
 
-	OpenerActor = GetWorld()->GetFirstPlayerController()->GetPawn();
+	FindAudioComponent();
 }
 
 // Called every frame
@@ -45,6 +46,15 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 			CloseDoor(DeltaTime);
 		}
 	}
+}
+
+void UOpenDoor::FindAudioComponent()
+{
+	if (!AudioComponent)
+	{
+		UE_LOG(LogTemp, Error, TEXT("No audio component found for: %s"), *GetOwner()->GetName());
+	}
+	AudioComponent = GetOwner()->FindComponentByClass<UAudioComponent>();
 }
 
 void UOpenDoor::OpenDoor(float DeltaTime)
@@ -77,4 +87,13 @@ float UOpenDoor::TotalMassOfActors() const
 	}
 
 	return TotalMass;
+}
+
+void UOpenDoor::PlayDoorSound()
+{
+	if (!AudioComponent)
+	{
+		return;
+	}
+	AudioComponent->Play();
 }
